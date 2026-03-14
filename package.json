@@ -4,7 +4,16 @@
   "description": "",
   "main": "dist/api/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run:install:basic": "echo \"🚀 Starting installation...\" && echo \"📦 Installing dependencies...\" && npm i typescript @types/node tsx nodemon  -D && npm i express express-rate-limit dotenv helmet zod cookie-parser cors jsonwebtoken winston-daily-rotate-file winston && npm i @types/express @types/cookie-parser @types/cors @types/jsonwebtoken -D && echo \" ✅ installation completed...\"",
+    "dev": "npm run docker:pre-run && nodemon",
+    "build": "tsc --build",
+    "start": "node dist/server.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "docker:pre-run": "npm run db:generate && npm run db:migrate"
   },
   "repository": {
     "type": "git",
