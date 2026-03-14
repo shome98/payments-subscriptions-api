@@ -1,0 +1,41 @@
+services:
+
+  app:
+    build: . 
+    container_name: payments-subs-api
+    ports:
+      - "9880:9880"     
+    # volumes:
+    #   - .:/app                       # Map local code to container
+    #   - /app/node_modules            # Anonymous volume to protect container's node_modules
+    # env_file:
+    #   - fileName
+    depends_on:
+      - postgres-db_payments-subs-api
+    networks:
+      - payments-subs-api-net
+  postgres-db_payments-subs-api:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: api-payments-subs_db
+    ports:
+      - "5491:5432"
+    volumes:
+      - ./api-payments-subs_db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d api-payments-subs_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - payments-subs-api-net
+
+
+networks:
+  payments-subs-api-net:
+    external: true
+    name: shared-crud-api-network
+    # driver: bridge
