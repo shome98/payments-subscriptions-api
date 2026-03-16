@@ -108,6 +108,14 @@ app.use((req, res, next) => {
 //  Global rate limiter
 app.use(globalRateLimiter);
 
+app.get('/', (req: Request, res: Response) => {
+  sendSuccess(res, '😊 Welcome start paying!', {
+    status: 'ok',
+    environment: env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+    uptime: `${Math.floor(process.uptime())}s`,
+  });
+});
 //  Health check
 app.get('/healthz', (_req, res) => {
   sendSuccess(res, '💚 Payments & Subscriptions API is healthy!', {
