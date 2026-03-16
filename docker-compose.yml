@@ -9,8 +9,8 @@ services:
       - .:/app                       # Map local code to container
       - /app/node_modules            # Anonymous volume to protect container's node_modules
       - ./logs/:/app/logs
-    # env_file:
-    #   - fileName
+    env_file:
+      - ./.env
     depends_on:
       - postgres-db_payments-subs-api
     networks:
