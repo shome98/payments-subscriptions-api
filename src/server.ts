@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import crypto from 'crypto';
@@ -19,6 +19,7 @@ import internalRoutes from './routes/internal.routes';
 import adminRoutes from './routes/admin.routes';
 import { adminRefundRouter, userRefundRouter } from './routes/refund.routes';
 import logger from './utils/logger';
+import cookieParser from 'cookie-parser';
 
 // 💳 Payments & Subscriptions API — Express App
 
@@ -92,6 +93,7 @@ app.use(
 //  Body parsing (all other routes)
 app.use(express.json({ limit: '512kb' }));
 app.use(express.urlencoded({ extended: true, limit: '512kb' }));
+app.use(cookieParser());
 
 //  Correlation ID
 const REQUEST_ID_PATTERN = /^[a-zA-Z0-9\-_]{1,128}$/;
