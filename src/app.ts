@@ -5,21 +5,12 @@ import logger from './utils/logger';
 const PORT = env.PORT;
 
 const server = app.listen(PORT, () => {
-  logger.info(`\n💳 Payments & Subscriptions API`);
+  logger.info(`💳 Payments & Subscriptions API`);
   logger.info(`🚀 Server running on port ${PORT}`);
   logger.info(`🌍 Environment  : ${env.NODE_ENV}`);
   logger.info(`🩺 Health check : http://localhost:${PORT}/healthz`);
   logger.info(`🚀 Ready check : http://localhost:${PORT}/readyz`);
   logger.info(`📡 API prefix   : http://localhost:${PORT}/api/v1`);
-  //
-  console.log(`\n💳 Payments & Subscriptions API`);
-  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌍 Environment  : ${env.NODE_ENV}`);
-  console.log(`🩺 Health check : http://localhost:${PORT}/healthz`);
-  console.log(`🚀 Ready check : http://localhost:${PORT}/readyz`);
-  console.log(`📡 API prefix   : http://localhost:${PORT}/api/v1`);
-  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
 });
 
 //  Graceful shutdown
