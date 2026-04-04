@@ -1,37 +1,44 @@
-# set the image
-FROM node:20-alpine AS app-builder
+# --- Stage 1: Base ---
+FROM node:alpine AS base
 
-# crreate user group and and adduser to the group
 RUN addgroup -S api-payments-subs-group && adduser -S -G api-payments-subs-group api-payments-subs-user
-
-# create workdir (Docker creates this as root by default)
+# # Debian-style user creation
+# RUN groupadd -r api-payments-subs-group && useradd -r -g api-payments-subs-group api-payments-subs-user
 WORKDIR /app
+# Pre-set ownership of the workdir
+RUN chown api-payments-subs-user:api-payments-subs-group /app
+COPY --chown=api-payments-subs-user:api-payments-subs-group package*.json ./
 
-# copy package json and package-lock.json files
-# We copy these first to leverage Docker's layer caching
-COPY package*.json ./
-
-# change the ownership of currect directory to use:group directory
-# We do this while still root so we have the permissions to change it
-RUN chown -R api-payments-subs-user:api-payments-subs-group /app
-
-# create logs directory and change ownership
-RUN mkdir -p /app/logs && chown -R api-payments-subs-user:api-payments-subs-group /app
-
-# install dependencies
-# We run install BEFORE copying the rest of the code so it doesn't re-run on every code change
-RUN npm install
-
-# copy other files
-# The --chown flag here ensures files are copied with correct permissions immediately
+# --- Stage 2: Development ---
+FROM base AS development
+RUN npm install --legacy-peer-deps
 COPY --chown=api-payments-subs-user:api-payments-subs-group . .
-
-# change the user from root
-# We switch to the non-root user last so it is active for the CMD and runtime
+# Create logs dir for dev environment
+RUN mkdir -p /app/logs && chown api-payments-subs-user:api-payments-subs-group /app/logs
 USER api-payments-subs-user
-
-# expose the port to listen
-EXPOSE 9880
-
-# start the app
+EXPOSE 9879
 CMD ["npm", "run", "dev"]
+
+# --- Stage 3: Build (Intermediate) ---
+FROM development AS builder
+# RUN npm run docker:pre-run
+USER root
+RUN npm run build
+RUN npm prune --omit=dev --legacy-peer-deps
+
+# --- Stage 4: Production ---
+FROM base AS production
+ENV NODE_ENV=production
+
+# Copy artifacts from builder
+COPY --from=builder --chown=api-payments-subs-user:api-payments-subs-group /app/node_modules ./node_modules
+COPY --from=builder --chown=api-payments-subs-user:api-payments-subs-group /app/dist ./dist
+
+# CRITICAL: Re-create and permission the logs directory in the final image
+RUN mkdir -p /app/logs && chown api-payments-subs-user:api-payments-subs-group /app/logs
+
+USER api-payments-subs-user
+EXPOSE 9879
+
+# Using 'node' directly is more memory-efficient than 'npm start'
+CMD ["npm", "run","start"]

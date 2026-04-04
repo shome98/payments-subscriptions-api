@@ -1,13 +1,15 @@
 services:
 
   app:
-    build: . 
+    build: 
+      context: .
+      target: production
     container_name: payments-subs-api
     ports:
       - "9880:9880"     
     volumes:
-      - .:/app                       # Map local code to container
-      - /app/node_modules            # Anonymous volume to protect container's node_modules
+      # - .:/app                       # Map local code to container
+      # - /app/node_modules            # Anonymous volume to protect container's node_modules
       - ./logs/:/app/logs
     env_file:
       - ./.env
