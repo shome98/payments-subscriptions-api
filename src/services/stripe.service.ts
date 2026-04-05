@@ -10,7 +10,7 @@ import { ApiError } from '../utils/api-error';
 import { parsePagination, buildPaginationMeta } from '../utils/pagination';
 import { validateDiscount } from './discount.service';
 import { resetLimit } from './subscription.service';
-import { env } from '../config/env';
+import { env, getAllowedClientUrl, getPrimaryClientUrl } from '../config/env';
 import type {
   CreateStripeSessionDto,
   PaymentHistoryDto,
@@ -32,6 +32,7 @@ export async function createCheckoutSession(
   userId: string,
   userEmail: string,
   dto: CreateStripeSessionDto,
+  clientUrl?: string,
 ): Promise<{ payment: StripePayment; sessionUrl: string }> {
   const [tier] = await db
     .select()
@@ -56,6 +57,25 @@ export async function createCheckoutSession(
 
   const stripe = await getStripe();
 
+  const redirectOrigin = getAllowedClientUrl(clientUrl) ?? getPrimaryClientUrl();
+
+  const rebaseToClientOrigin = (template: string | undefined, origin: string) => {
+    if (!template) return origin;
+    if (template.startsWith('/')) return new URL(template, origin).toString();
+    try {
+      const parsed = new URL(template);
+      return new URL(`${parsed.pathname}${parsed.search}${parsed.hash}`, origin).toString();
+    } catch {
+      return origin;
+    }
+  };
+
+  const successTemplate = rebaseToClientOrigin(env.STRIPE_SUCCESS_URL, redirectOrigin);
+  const successUrl = new URL(successTemplate);
+  successUrl.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}');
+
+  const cancelUrl = rebaseToClientOrigin(env.STRIPE_CANCEL_URL, redirectOrigin);
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     customer_email: userEmail,
@@ -73,8 +93,8 @@ export async function createCheckoutSession(
       },
     ],
     mode: 'payment',
-    success_url: `${env.STRIPE_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: env.STRIPE_CANCEL_URL,
+    success_url: successUrl.toString(),
+    cancel_url: cancelUrl,
     metadata: { userId, tierId: dto.tierId, discountId: discountId ?? '' },
     discounts: stripeDiscounts,
   });

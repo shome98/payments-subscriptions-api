@@ -6,6 +6,7 @@ import type {
   CreateStripeSessionDto,
   PaymentHistoryDto,
 } from '../validators/payment.validator';
+import { resolveClientUrl } from '../utils/client-url';
 
 /** POST /api/v1/payments/stripe/create-session */
 export async function createSession(
@@ -17,10 +18,12 @@ export async function createSession(
     const userId = req.user?.userId;
     const userEmail = req.user?.email;
     if (!userId || !userEmail) return void next(ApiError.unauthorized());
+    const clientUrl = resolveClientUrl(req);
     const result = await service.createCheckoutSession(
       userId,
       userEmail,
       req.body as CreateStripeSessionDto,
+      clientUrl,
     );
     sendSuccess(
       res,

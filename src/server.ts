@@ -3,7 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import crypto from 'crypto';
 import { API_PREFIX } from './config/constants';
-import { env } from './config/env';
+import { env, getClientUrls } from './config/env';
 import { globalRateLimiter } from './middleware/rate-limiter';
 import { errorHandler } from './middleware/error-handler';
 import { sendSuccess, sendError } from './utils/api-response';
@@ -50,7 +50,7 @@ app.use((req, res, next) => {
 app.use(helmet());
 
 //  CORS — comma-separated CLIENT_URL env var
-const allowedOrigins = env.CLIENT_URL.split(',').map((s) => s.trim());
+const allowedOrigins = getClientUrls();
 app.use(
   cors({
     origin: (origin, callback) => {

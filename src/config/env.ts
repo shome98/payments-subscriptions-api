@@ -33,6 +33,7 @@ const envSchema = z.object({
 
   // CORS — comma-separated list of allowed origins
   CLIENT_URL: z.string().default('http://localhost:5173'),
+  CLIENT_URLS: z.string().optional(),
 
   // ENCRYPTION_KEY: z.string().length(32, "ENCRYPTION_KEY must be exactly 32 characters").optional(),
 
@@ -67,3 +68,24 @@ if (!parsed.success) {
 
 export const env = parsed.data;
 export type Env = z.infer<typeof envSchema>;
+
+const normalizeUrl = (value: string) => value.trim().replace(/\/+$/, '');
+
+export const getClientUrls = () => {
+  const configured = env.CLIENT_URLS ?? env.CLIENT_URL;
+  return configured.split(',').map(normalizeUrl).filter(Boolean);
+};
+
+export const getPrimaryClientUrl = () => {
+  return getClientUrls()[0] ?? normalizeUrl(env.CLIENT_URL);
+};
+
+export const getAllowedClientUrl = (value?: string | null) => {
+  if (!value) return null;
+  try {
+    const normalized = normalizeUrl(new URL(value).origin);
+    return getClientUrls().find((url) => url === normalized) ?? null;
+  } catch {
+    return null;
+  }
+};
