@@ -16,7 +16,7 @@ import jwt from 'jsonwebtoken';
 // Expects:  Authorization: Bearer <access_token>
 //
 // Token issuer: personal-auth-api
-// Payload:      { userId, sessionToken, jti, role }
+// Payload:      { userId, email, sessionToken, jti, role }
 //
 // On success attaches to req:
 //   req.user.id           ← payload.userId   (canonical field mapping)
@@ -123,6 +123,7 @@ export function optionalAuthenticate(
     if (userId) {
       req.user = {
         userId,
+        email: payload.email,
         role: extractRoleFromPayload(payload) ?? 'user',
         sessionToken: payload.sessionToken,
         jti: payload.jti,

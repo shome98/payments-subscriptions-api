@@ -10,7 +10,7 @@ import { env } from '../config/env';
 //   confusion (the issuer uses `payload.userId`, NOT `payload.id`).
 //
 // Token issuer: personal-auth-api
-//   Payload shape: { userId, sessionToken, jti, role }
+//   Payload shape: { userId, email, sessionToken, jti, role }
 //   Secret:        JWT_SECRET  ← must be the SAME value across all services
 //
 // Local development bypass:
@@ -36,6 +36,7 @@ import { env } from '../config/env';
  */
 export interface JwtServicePayload {
   userId: string;
+  email?: string;
   sessionToken: string;
   jti: string;
   role: string;
