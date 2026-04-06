@@ -72,7 +72,11 @@ export async function createCheckoutSession(
 
   const successTemplate = rebaseToClientOrigin(env.STRIPE_SUCCESS_URL, redirectOrigin);
   const successUrl = new URL(successTemplate);
-  successUrl.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}');
+  successUrl.searchParams.delete('session_id');
+  const otherParams = successUrl.searchParams.toString();
+  const successUrlWithSessionId = `${successUrl.origin}${successUrl.pathname}?${
+    otherParams ? `${otherParams}&` : ''
+  }session_id={CHECKOUT_SESSION_ID}${successUrl.hash}`;
 
   const cancelUrl = rebaseToClientOrigin(env.STRIPE_CANCEL_URL, redirectOrigin);
 
@@ -93,7 +97,7 @@ export async function createCheckoutSession(
       },
     ],
     mode: 'payment',
-    success_url: successUrl.toString(),
+    success_url: successUrlWithSessionId,
     cancel_url: cancelUrl,
     metadata: { userId, tierId: dto.tierId, discountId: discountId ?? '' },
     discounts: stripeDiscounts,
