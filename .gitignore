@@ -1,0 +1,7 @@
+node_modules/
+dist/
+drizzle/
+.env
+*.log
+api-payments-subs_db-data
+logs
