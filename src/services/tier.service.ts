@@ -32,6 +32,7 @@ export async function createTier(dto: CreateTierDto): Promise<Tier> {
       benefits: dto.benefits,
       price: String(dto.price),
       limit: dto.limit,
+      rateLimit: dto.rateLimit,
       permission: dto.permission,
       isActive: dto.isActive,
     })
@@ -109,6 +110,7 @@ export async function updateTier(
       ...(dto.benefits !== undefined && { benefits: dto.benefits }),
       ...(dto.price !== undefined && { price: String(dto.price) }),
       ...(dto.limit !== undefined && { limit: dto.limit }),
+      ...(dto.rateLimit !== undefined && { rateLimit: dto.rateLimit }),
       ...(dto.permission !== undefined && { permission: dto.permission }),
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
       updatedAt: new Date(),

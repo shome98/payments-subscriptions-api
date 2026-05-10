@@ -22,6 +22,11 @@ export const createTierSchema = z.object({
     .nonnegative('Price must be >= 0')
     .multipleOf(0.01, 'Price must have at most 2 decimal places'),
   limit: z.number().int().positive('Limit must be a positive integer'),
+  rateLimit: z
+    .number()
+    .int()
+    .positive('Rate limit must be a positive integer')
+    .default(10000),
   permission: TierPermissionEnum.default('SCRUD'),
   isActive: z.boolean().default(true),
 });

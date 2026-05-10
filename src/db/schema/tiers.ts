@@ -53,6 +53,9 @@ export const tiers = pgTable(
     /** Maximum number of APIs this tier allows a user to create */
     limit: integer('limit').notNull().default(3),
 
+    /** Monthly request rate limit granted to APIs created under this tier */
+    rateLimit: integer('rate_limit').notNull().default(10000),
+
     /** Permission level granted by this tier */
     permission: tierPermissionEnum('permission').notNull().default('SCRUD'),
 
