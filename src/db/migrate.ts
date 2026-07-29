@@ -20,7 +20,7 @@ async function runMigrations(): Promise<void> {
 
   try {
     await migrate(db, {
-      migrationsFolder: path.join(__dirname, '../../drizzle'),
+      migrationsFolder: './drizzle',
     });
     console.log('✅ Migrations completed successfully!');
   } catch (error) {
