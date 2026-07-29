@@ -3,14 +3,15 @@ import { env } from './config/env';
 import logger from './utils/logger';
 
 const PORT = env.PORT;
+const APP_URL = env.APP_URL;
 
 const server = app.listen(PORT, () => {
   logger.info(`💳 Payments & Subscriptions API`);
   logger.info(`🚀 Server running on port ${PORT}`);
   logger.info(`🌍 Environment  : ${env.NODE_ENV}`);
-  logger.info(`🩺 Health check : http://localhost:${PORT}/healthz`);
-  logger.info(`🚀 Ready check : http://localhost:${PORT}/readyz`);
-  logger.info(`📡 API prefix   : http://localhost:${PORT}/api/v1`);
+  logger.info(`🩺 Health check : ${APP_URL}/healthz`);
+  logger.info(`🚀 Ready check : ${APP_URL}/readyz`);
+  logger.info(`📡 API prefix   : ${APP_URL}/api/v1`);
 });
 
 //  Graceful shutdown
