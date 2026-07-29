@@ -23,6 +23,7 @@ export interface SubscriptionWithTier extends UserSubscription {
     name: string;
     permission: string;
     limit: number;
+    rateLimit: number;
     benefits: string[];
     price: string;
   };
@@ -36,6 +37,7 @@ export interface SubscriptionCheckResult {
     name: string;
     permission: string;
     limit: number;
+    rateLimit: number;
   };
   reason?: string;
 }
@@ -70,7 +72,7 @@ async function ensureNotExpired(
         status: 'expired',
         isSubscribed: false,
         tierId: freeTierId,
-        limitLeft: 3,
+        limitLeft: FREE_TIER_LIMIT,
         updatedAt: new Date(),
       })
       .where(eq(userSubscriptions.id, sub.id))
@@ -99,7 +101,7 @@ export async function getOrCreateSubscription(
     const freeTierId = await getFreeTierId();
     [sub] = await db
       .insert(userSubscriptions)
-      .values({ userId, tierId: freeTierId, limitLeft: 3 })
+      .values({ userId, tierId: freeTierId, limitLeft: FREE_TIER_LIMIT })
       .returning();
   }
 
@@ -111,6 +113,7 @@ export async function getOrCreateSubscription(
       name: tiers.name,
       permission: tiers.permission,
       limit: tiers.limit,
+      rateLimit: tiers.rateLimit,
       benefits: tiers.benefits,
       price: tiers.price,
     })
