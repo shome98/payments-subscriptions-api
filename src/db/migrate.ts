@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import * as dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 
 dotenv.config();
@@ -12,6 +13,25 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
+const migrationFolders = [
+  path.resolve(process.cwd(), 'drizzle'),
+  path.resolve(__dirname, '../../drizzle'),
+];
+
+function resolveMigrationsFolder(): string {
+  const migrationsFolder = migrationFolders.find((folder) =>
+    fs.existsSync(path.join(folder, 'meta', '_journal.json')),
+  );
+
+  if (!migrationsFolder) {
+    throw new Error(
+      `Drizzle migrations not found. Checked: ${migrationFolders.join(', ')}`,
+    );
+  }
+
+  return migrationsFolder;
+}
+
 async function runMigrations(): Promise<void> {
   console.log('🔄 Running migrations...');
 
@@ -19,8 +39,11 @@ async function runMigrations(): Promise<void> {
   const db = drizzle(migrationClient);
 
   try {
+    const migrationsFolder = resolveMigrationsFolder();
+    console.log(`Using migrations from ${migrationsFolder}`);
+
     await migrate(db, {
-      migrationsFolder: './drizzle',
+      migrationsFolder,
     });
     console.log('✅ Migrations completed successfully!');
   } catch (error) {
